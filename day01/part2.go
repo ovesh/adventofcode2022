@@ -23,9 +23,6 @@ func Part2() int {
 		}
 		curTotal += curr
 	}
-	if curTotal != 0 {
-		allSums = append(allSums, curTotal)
-	}
 	sort.Ints(allSums)
 	return allSums[len(allSums)-1] + allSums[len(allSums)-2] + allSums[len(allSums)-3]
 }
