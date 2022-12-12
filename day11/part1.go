@@ -13,6 +13,9 @@ type monkey struct {
 	targetTrue  int
 	targetFalse int
 	inspected   int
+
+	// part 2 only
+	denominator int
 }
 
 func (m *monkey) turn(allMonkeys []*monkey) {
@@ -45,8 +48,8 @@ func sAtoi(s []string) []int {
 	return is
 }
 
-func Part1() int {
-	lines := strings.Split(sample, "\n")
+func setupMonkeys(s string) []*monkey {
+	lines := strings.Split(s, "\n")
 	monkeys := []*monkey{}
 	for i := 0; i < len(lines); i += 7 {
 		m := &monkey{}
@@ -68,6 +71,7 @@ func Part1() int {
 		}
 
 		denominator := atoi(lines[i+3][len("  Test: divisible by "):])
+		m.denominator = denominator
 		m.test = func(i int) bool { return i%denominator == 0 }
 
 		m.targetTrue = atoi(lines[i+4][len("    If true: throw to monkey "):])
@@ -75,7 +79,11 @@ func Part1() int {
 
 		monkeys = append(monkeys, m)
 	}
+	return monkeys
+}
 
+func Part1() int {
+	monkeys := setupMonkeys(input0)
 	for i := 0; i < 20; i++ {
 		for _, m := range monkeys {
 			m.turn(monkeys)
