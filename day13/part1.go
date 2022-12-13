@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-// return -1 for equal, 0 for "right order", 1 for "wrong order"
+// return 0 for equal, -1 for "right order", 1 for "wrong order"
 func compareLists(list1, list2 []interface{}) int {
 	for i := 0; i < len(list1) || i < len(list2); i++ {
 		if i >= len(list1) {
-			return 0
+			return -1
 		}
 		if i >= len(list2) {
 			return 1
@@ -21,32 +21,32 @@ func compareLists(list1, list2 []interface{}) int {
 				continue
 			}
 			if int(list1[i].(float64)) < int(list2[i].(float64)) {
-				return 0
+				return -1
 			}
 			return 1
 		}
 		if isInt1 && !isInt2 {
 			winner := compareLists(([]interface{}{list1[i]}), list2[i].([]interface{}))
-			if winner == -1 { // draw
+			if winner == 0 { // draw
 				continue
 			}
 			return winner
 		}
 		if !isInt1 && isInt2 {
 			winner := compareLists(list1[i].([]interface{}), ([]interface{}{list2[i]}))
-			if winner == -1 { // draw
+			if winner == 0 { // draw
 				continue
 			}
 			return winner
 		}
 		winner := compareLists(list1[i].([]interface{}), list2[i].([]interface{}))
-		if winner == -1 { // draw
+		if winner == 0 { // draw
 			continue
 		}
 		return winner
 	}
 
-	return -1
+	return 0
 }
 
 func Part1() int {
@@ -64,10 +64,10 @@ func Part1() int {
 		}
 		//fmt.Println(lines[i], "vs", lines[i+1])
 		winner := compareLists(list1, list2)
-		if winner == -1 {
+		if winner == 0 {
 			panic("draw")
 		}
-		if winner == 0 {
+		if winner == -1 {
 			total += (i / 3) + 1
 		}
 	}

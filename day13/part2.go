@@ -2,6 +2,7 @@ package day13
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 )
 
@@ -20,14 +21,24 @@ func Part2() int {
 		}
 		allPackets = append(allPackets, list1)
 		allPackets = append(allPackets, list2)
-		winner := compareLists(list1, list2)
-		if winner == -1 {
-			panic("draw")
-		}
-		//if winner == 0 {
-		//	total += (i / 3) + 1
-		//}
 	}
-	//return total
-	return 0
+
+	var two interface{} = float64(2.0)
+	var six interface{} = float64(6.0)
+	allPackets = append(allPackets, []interface{}{two})
+	allPackets = append(allPackets, []interface{}{six})
+	sort.Slice(allPackets, func(i, j int) bool {
+		return compareLists(allPackets[i], allPackets[j]) == -1
+	})
+	//for _, packet := range allPackets {
+	//	fmt.Println(packet)
+	//}
+	product := 1
+	for i, item := range allPackets {
+		//iitem := item.([]interface{})
+		if len(item) == 1 && (item[0] == two || item[0] == six) {
+			product *= (i + 1)
+		}
+	}
+	return product
 }
