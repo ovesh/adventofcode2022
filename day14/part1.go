@@ -14,7 +14,9 @@ func atoi(s string) int {
 	return res
 }
 
-type mtrx [200][110]int
+const height, width = 200, 400
+
+type mtrx [height][width]int
 
 func printMatrix(matrix *mtrx) {
 	fmt.Print("  ")
@@ -38,12 +40,13 @@ func printMatrix(matrix *mtrx) {
 	}
 }
 
-const xOffset = 480
+const xOffset = 300
 
-func prepareMatrix(input string) mtrx {
+func prepareMatrix(input string, withFloor bool) mtrx {
 	// matrix starts from 480, 0
 	matrix := mtrx{}
 	lines := strings.Split(input, "\n")
+	maxY := 0
 	for _, line := range lines {
 		sPoints := strings.Split(line, " -> ")
 		prevX, prevY := 0, 0
@@ -51,6 +54,9 @@ func prepareMatrix(input string) mtrx {
 			xCoord := strings.Split(sPoint, ",")
 			x := atoi(xCoord[0])
 			y := atoi(xCoord[1])
+			if y > maxY {
+				maxY = y
+			}
 			if j == 0 {
 				prevX = x
 				prevY = y
@@ -77,6 +83,12 @@ func prepareMatrix(input string) mtrx {
 				}
 			}
 			prevX, prevY = x, y
+		}
+	}
+
+	if withFloor {
+		for i := 0; i < width; i++ {
+			matrix[maxY+2][i] = 1
 		}
 	}
 	return matrix
@@ -107,7 +119,7 @@ func turn(matrix *mtrx) bool {
 }
 
 func Part1() int {
-	matrix := prepareMatrix(input0)
+	matrix := prepareMatrix(input0, false)
 	turns := 0
 	for ; true; turns++ {
 		if !turn(&matrix) {
