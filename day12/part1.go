@@ -1,42 +1,36 @@
 package day12
 
 import (
+	"fmt"
 	"strings"
+
+	structs "github.com/kirves/godijkstra/common/structs"
+	"github.com/kirves/godijkstra/dijkstra"
 )
 
 type node struct {
-	// up, right, down, left (nil for edges or if height is higher)
-	neighbors [4]*node
-	visited   bool
-	height    int
+	height int
+	row    int
+	col    int
 }
 
-func findPath(start, end *node) int {
-	start.visited = true
-	defer func() { start.visited = false }()
-	min := 1000000
-	for _, n := range start.neighbors {
-		if n == nil {
-			continue
-		}
-		if n.visited {
-			continue
-		}
-		if n == end {
-			return 1
-		}
-		length := findPath(n, end)
-		if length == -1 { // dead end
-			continue
-		}
-		if length < min {
-			min = length + 1
-		}
-	}
-	if min == 1000000 {
-		return -1
-	}
-	return min
+func (n *node) String() string {
+	return fmt.Sprintf("(%d,%d),", n.row, n.col)
+}
+
+func (g *GraphObject) SuccessorsForNode(node string) []structs.Connection {
+	return g.nodes2Neighbors[node]
+}
+func (g *GraphObject) PredecessorsFromNode(_ string) []structs.Connection {
+	return []structs.Connection{}
+}
+
+func (g *GraphObject) EdgeWeight(_, _ string) int {
+	return 1
+}
+
+type GraphObject struct {
+	nodes2Neighbors map[string][]structs.Connection
 }
 
 func Part1() int {
@@ -49,6 +43,7 @@ func Part1() int {
 	}
 	var start *node
 	var end *node
+	graph := GraphObject{nodes2Neighbors: map[string][]structs.Connection{}}
 	for row, line := range lines {
 		for col, c := range line {
 			if c == 'S' {
@@ -60,23 +55,32 @@ func Part1() int {
 			} else {
 				matrix[row][col] = &node{height: int(c - 'a')}
 			}
+			matrix[row][col].row = row
+			matrix[row][col].col = col
+			graph.nodes2Neighbors[matrix[row][col].String()] = []structs.Connection{}
 		}
 	}
 	for row, line := range lines {
 		for col := range line {
+			nodeID := matrix[row][col].String()
 			if row > 0 && matrix[row-1][col].height <= matrix[row][col].height+1 {
-				matrix[row][col].neighbors[0] = matrix[row-1][col]
+				graph.nodes2Neighbors[nodeID] = append(graph.nodes2Neighbors[nodeID], structs.Connection{Destination: (&node{row: row - 1, col: col}).String(), Weight: 1})
 			}
 			if row < height-1 && matrix[row+1][col].height <= matrix[row][col].height+1 {
-				matrix[row][col].neighbors[2] = matrix[row+1][col]
+				graph.nodes2Neighbors[nodeID] = append(graph.nodes2Neighbors[nodeID], structs.Connection{Destination: (&node{row: row + 1, col: col}).String(), Weight: 1})
 			}
 			if col > 0 && matrix[row][col-1].height <= matrix[row][col].height+1 {
-				matrix[row][col].neighbors[3] = matrix[row][col-1]
+				graph.nodes2Neighbors[nodeID] = append(graph.nodes2Neighbors[nodeID], structs.Connection{Destination: (&node{row: row, col: col - 1}).String(), Weight: 1})
 			}
 			if col < width-1 && matrix[row][col+1].height <= matrix[row][col].height+1 {
-				matrix[row][col].neighbors[1] = matrix[row][col+1]
+				graph.nodes2Neighbors[nodeID] = append(graph.nodes2Neighbors[nodeID], structs.Connection{Destination: (&node{row: row, col: col + 1}).String(), Weight: 1})
 			}
 		}
 	}
-	return findPath(start, end)
+	path, valid := dijkstra.SearchPath(&graph, start.String(), end.String(), dijkstra.VANILLA)
+	if !valid {
+		panic("invalid path")
+	}
+	fmt.Println(path.Path)
+	return len(path.Path) - 1
 }
