@@ -33,8 +33,8 @@ type GraphObject struct {
 	nodes2Neighbors map[string][]structs.Connection
 }
 
-func Part1() int {
-	lines := strings.Split(input0, "\n")
+func setup(input string) (*GraphObject, *node, *node, [][]*node) {
+	lines := strings.Split(input, "\n")
 	width := len(lines[0])
 	height := len(lines)
 	matrix := make([][]*node, height)
@@ -77,7 +77,13 @@ func Part1() int {
 			}
 		}
 	}
-	path, valid := dijkstra.SearchPath(&graph, start.String(), end.String(), dijkstra.VANILLA)
+
+	return &graph, start, end, matrix
+}
+
+func Part1() int {
+	graph, start, end, _ := setup(input0)
+	path, valid := dijkstra.SearchPath(graph, start.String(), end.String(), dijkstra.VANILLA)
 	if !valid {
 		panic("invalid path")
 	}
