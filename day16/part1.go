@@ -170,6 +170,12 @@ func Part1() int {
 			nodes[i].neighbors = append(nodes[i].neighbors, neighbor)
 		}
 	}
+
+	return nodes, nodesWithFlow, nodeByID, aa
+}
+
+func Part1() int {
+	nodes, nodesWithFlow, nodeByID, aa := parseInput(input0)
 	shortestRoutes := findAllShortestRoutes(nodes, aa)
 	fmt.Println(shortestRoutes)
 	max := 0

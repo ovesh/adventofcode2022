@@ -2,11 +2,19 @@ package day20
 
 const sample = `1
 2
--3
+-10
 3
 -2
 0
 4`
+
+const sample2 = `4
+-2
+5
+6
+7
+0
+9`
 
 const input0 = `9834
 5440
