@@ -141,8 +141,8 @@ func next(states []state, shortestRoutes map[string]int, nodesByID map[string]*n
 	return res
 }
 
-func Part1() int {
-	lines := strings.Split(input0, "\n")
+func parseInput(input string) ([]*node, map[string]struct{}, map[string]*node, *node) {
+	lines := strings.Split(input, "\n")
 	nodeByID := make(map[string]*node)
 	nodes := make([]*node, len(lines))
 	nodesWithFlow := map[string]struct{}{}

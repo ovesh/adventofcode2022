@@ -78,69 +78,81 @@ func draw(all [][7]bool) {
 }
 
 const maxX = 6
-const turns = 2022
+
+func shapeGoDown(time int, maxY int, input string, curShape *shape, all [][maxX + 1]bool) (int, bool) {
+	right := input[time%len(input)] == '>'
+	if right {
+		canRight := curShape.leftX+curShape.width <= maxX
+		for _, coords := range curShape.rightMost {
+			y, x := coords[0]+curShape.bottomY, coords[1]+curShape.leftX+1
+			canRight = canRight && !all[y][x]
+		}
+		if canRight {
+			curShape.leftX++
+		}
+	} else {
+		canLeft := curShape.leftX > 0
+		for _, coords := range curShape.leftMost {
+			y, x := coords[0]+curShape.bottomY, coords[1]+curShape.leftX-1
+			canLeft = canLeft && !all[y][x]
+		}
+		if canLeft {
+			curShape.leftX--
+		}
+	}
+
+	if curShape.bottomY > maxY {
+		curShape.bottomY--
+	} else {
+		canDown := true
+		for _, coords := range curShape.bottomMost {
+			y := curShape.bottomY + coords[0] - 1
+			canDown = canDown && y >= 0 && !all[y][coords[1]+curShape.leftX]
+		}
+		if canDown {
+			curShape.bottomY--
+		} else { // can't go down any more
+			for y, row := range curShape.shape {
+				for x, col := range row {
+					_y, _x := y+curShape.bottomY, x+curShape.leftX
+					all[_y][_x] = all[_y][_x] || col
+				}
+			}
+			nextMaxY := curShape.bottomY + curShape.height
+			if nextMaxY > maxY {
+				maxY = nextMaxY
+			}
+			//fmt.Println("maxY", maxY)
+			//draw(all)
+			//fmt.Println("AAAA", "time", time, "maxY", maxY)
+			return maxY, false
+		}
+	}
+
+	//fmt.Println("BBBB", "time", time, "maxY", maxY)
+	return maxY, true
+}
 
 func Part1() int {
-	input := input0
+	const input = input0
+	const turns = 2022
 	maxY := 0
 	time := -1
-	all := [][7]bool{}
+	all := [][maxX + 1]bool{}
 	for i := 0; i < turns; i++ {
 		curShape := shapes[i%5].clone()
 		curShape.leftX = 2
 		curShape.bottomY = maxY + 3
 		for len(all) < curShape.bottomY+curShape.height {
-			all = append(all, [7]bool{})
+			all = append(all, [maxX + 1]bool{})
 		}
 
 		for {
 			time++
-			right := input[time%len(input)] == '>'
-			if right {
-				canRight := curShape.leftX+curShape.width <= maxX
-				for _, coords := range curShape.rightMost {
-					y, x := coords[0]+curShape.bottomY, coords[1]+curShape.leftX+1
-					canRight = canRight && !all[y][x]
-				}
-				if canRight {
-					curShape.leftX++
-				}
-			} else {
-				canLeft := curShape.leftX > 0
-				for _, coords := range curShape.leftMost {
-					y, x := coords[0]+curShape.bottomY, coords[1]+curShape.leftX-1
-					canLeft = canLeft && !all[y][x]
-				}
-				if canLeft {
-					curShape.leftX--
-				}
-			}
-
-			if curShape.bottomY > maxY {
-				curShape.bottomY--
-			} else {
-				canDown := true
-				for _, coords := range curShape.bottomMost {
-					y := curShape.bottomY + coords[0] - 1
-					canDown = canDown && y >= 0 && !all[y][coords[1]+curShape.leftX]
-				}
-				if canDown {
-					curShape.bottomY--
-				} else { // can't go down any more
-					for y, row := range curShape.shape {
-						for x, col := range row {
-							y, x := y+curShape.bottomY, x+curShape.leftX
-							all[y][x] = all[y][x] || col
-						}
-					}
-					nextMaxY := curShape.bottomY + curShape.height
-					if nextMaxY > maxY {
-						maxY = nextMaxY
-					}
-					//fmt.Println("maxY", maxY)
-					//draw(all)
-					break
-				}
+			var cont bool
+			maxY, cont = shapeGoDown(time, maxY, input, &curShape, all)
+			if !cont {
+				break
 			}
 		}
 	}
