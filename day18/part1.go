@@ -17,21 +17,9 @@ type droplet struct {
 	x, y, z int
 }
 
-func Part1() int {
-	const input = input0
-	const side = 20
-	lines := strings.Split(input, "\n")
-	all := [side][side][side]bool{}
-	droplets := []droplet{}
-	for _, line := range lines {
-		sVals := strings.Split(line, ",")
-		x := atoi(sVals[0])
-		y := atoi(sVals[1])
-		z := atoi(sVals[2])
-		all[x][y][z] = true
-		droplets = append(droplets, droplet{x, y, z})
-	}
+const side = 21
 
+func total1(droplets []droplet, all [side][side][side]bool) int {
 	total := 0
 	for _, droplet := range droplets {
 		if droplet.x == 0 || droplet.x == side-1 {
@@ -64,4 +52,26 @@ func Part1() int {
 	}
 
 	return total
+}
+
+func parseInput(input string) ([]droplet, [side][side][side]bool) {
+	lines := strings.Split(input, "\n")
+	all := [side][side][side]bool{}
+	droplets := []droplet{}
+	for _, line := range lines {
+		sVals := strings.Split(line, ",")
+		x := atoi(sVals[0])
+		y := atoi(sVals[1])
+		z := atoi(sVals[2])
+		all[x][y][z] = true
+		droplets = append(droplets, droplet{x: x, y: y, z: z})
+	}
+	return droplets, all
+}
+
+func Part1() int {
+	const input = input0
+
+	droplets, all := parseInput(input)
+	return total1(droplets, all)
 }
